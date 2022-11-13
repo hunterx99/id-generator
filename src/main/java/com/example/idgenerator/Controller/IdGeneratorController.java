@@ -13,7 +13,7 @@ public class IdGeneratorController {
 
     @GetMapping("/getId")
     public long getId() {
-        return idGeneratorService.getId2();
+        return idGeneratorService.getId();
     }
 
 }

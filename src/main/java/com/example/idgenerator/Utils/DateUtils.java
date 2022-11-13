@@ -9,6 +9,6 @@ public class DateUtils {
     private static final Long START_EPOCH = 1667296800000L;
     @Bean
     public static long getEpochMills() {
-        return Instant.now().toEpochMilli();
+        return Instant.now().toEpochMilli() - START_EPOCH;
     }
 }

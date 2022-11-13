@@ -4,6 +4,7 @@ import com.example.idgenerator.Model.IdGenerator;
 import com.example.idgenerator.Repository.IdGeneratorRepo;
 import com.example.idgenerator.Utils.DateUtils;
 import com.example.idgenerator.Utils.GenerateNodeId;
+import com.example.idgenerator.Utils.GeneratePID;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,38 +18,29 @@ public class IdGeneratorService {
 
     private static int COUNTER;
     private static final int LIMIT = 2000;
-
-
-    //Test
-    private static final int EPOCH_BIT_LEN = 18;
-    private static final int COUNTER_BITS = 2;
+    private static final int EPOCH_BIT_LEN = 41;
+    private static final int PID = 13;
+    private static final int COUNTER_BITS = 10;
 
     @Autowired
     GenerateNodeId generateNodeId;
 
 
-    public long getId() {
+    public synchronized long getId() {
         long currentEpochMillSec = DateUtils.getEpochMills();
-//        String currentEpochMillSecToBase10 = Long.toString(currentEpochMillSec, 10);
-        String epochDateWithCounter = String.valueOf(currentEpochMillSec) + COUNTER;
-        if (COUNTER % LIMIT == 0) {
-            saveLastCounterUsed(currentEpochMillSec);
-        }
-        COUNTER++;
-        return Long.parseLong(epochDateWithCounter);
-    }
+        long id = 0L;
 
-
-    public int getId2() {
-        long currentEpochMillSec = DateUtils.getEpochMills();
-        int nodeId = generateNodeId.generatingNodeId();
-        int id = nodeId + COUNTER;
+        id = currentEpochMillSec << (64 - EPOCH_BIT_LEN);
+        int pid = GeneratePID.generatePid() % 2000;
+        id |= pid << (64 - EPOCH_BIT_LEN - PID);
 
         if (COUNTER % LIMIT == 0) {
             saveLastCounterUsed(currentEpochMillSec);
         }
-        COUNTER++;
+        int counter = COUNTER % 1024;
+        id |= counter;
 
+        COUNTER++;
         return id;
     }
 
